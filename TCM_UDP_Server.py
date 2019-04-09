@@ -30,12 +30,12 @@ Port = config.get('CEMS', 'Port')
 TCM3001_ID = config.get('CEMS', 'TCM3001_ID')
 
 # Get its IP address
-ni.ifaddresses('eth0')
-Gateway_IP = ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']
+ni.ifaddresses('enxb827eb64c50d')
+Gateway_IP = ni.ifaddresses('enxb827eb64c50d')[ni.AF_INET][0]['addr']
 
 # Act as UDP Server to receive data
-#address = ('192.168.2.134', 8877)
-address = (Gateway_IP, int(Gateway_Port))
+address = ('192.168.20.152', 56841)
+#address = (Gateway_IP, int(Gateway_Port))
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.bind(address)
 
@@ -43,20 +43,6 @@ def main():
 
     try:
         while 1:
-#            print "** TCM3001 Power Meter **"
-            MAC_ADD = getMAC(interface='wlan0')
-
-            #BCM2835 core temperature
-            file = open("/sys/class/thermal/thermal_zone0/temp")
-            temp = float(file.read())/1000
-            file.close()
-#            print "CPU temperatre: %0.1f" %temp
-
-            # Send data to CEMS
-            API_ENDPOINT = CEMS_URL + "input/post.json?node=" + NODE_NAME + "_" + MAC_ADD + "&json={"\
-            +'CPU_Temperature: '+str(temp)\
-            +"}&apikey="+API_KEY
-            r = requests.post(url = API_ENDPOINT)
 
             #receive TCM3001 Periodical UDP Report
             json_string, addr = s.recvfrom(2048)
@@ -97,20 +83,7 @@ def main():
 
                 #Send Data to CEMS Servr
                 API_ENDPOINT = CEMS_URL + "input/post.json?node=" + NODE_NAME + "_TCM3001_ID_"+str(UDP_Report.get("id")) + "&json={"\
-                +'f0: '+str(UDP_Report.get("f0"))+','+'f1: '+str(UDP_Report.get("f1"))+','+'f2: '+str(UDP_Report.get("f2"))+','\
-                +'ii0: '+str(UDP_Report.get("ii0"))+','+'ii1: '+str(UDP_Report.get("ii1"))+','+'ii2: '+str(UDP_Report.get("ii2"))+','\
-                +'h0: '+str(UDP_Report.get("h0"))+','+'h1: '+str(UDP_Report.get("h1"))+','+'h2: '+str(UDP_Report.get("h2"))+','\
-                +'vv0: '+str(UDP_Report.get("vv0"))+','+'vv1: '+str(UDP_Report.get("vv1"))+','+'vv2: '+str(UDP_Report.get("vv2"))+','\
-                +'b0: '+str(UDP_Report.get("b0"))+','+'b1: '+str(UDP_Report.get("b1"))+','+'b2: '+str(UDP_Report.get("b2"))+','\
-                +'r0: '+str(UDP_Report.get("r0"))+','+'r1: '+str(UDP_Report.get("r1"))+','+'r2: '+str(UDP_Report.get("r2"))+','\
-                +'q0: '+str(UDP_Report.get("q0"))+','+'q1: '+str(UDP_Report.get("q1"))+','+'q2: '+str(UDP_Report.get("q2"))+','\
-                +'s0: '+str(UDP_Report.get("s0"))+','+'s1: '+str(UDP_Report.get("s1"))+','+'s2: '+str(UDP_Report.get("s2"))+','\
-                +'vq0 :'+str(UDP_Report.get("vq0"))+','+'vq1: '+str(UDP_Report.get("vq1"))+','+'vq2: '+str(UDP_Report.get("vq2"))+','\
-                +'v0 :'+str(UDP_Report.get("v0"))+','+'v1 :'+str(UDP_Report.get("v1"))+','+'v2: '+str(UDP_Report.get("v2"))+','\
-                +'a0 :'+str(UDP_Report.get("a0"))+','+'a1: '+str(UDP_Report.get("a1"))+','+'a2: '+str(UDP_Report.get("a2"))+','\
-                +'i0 :'+str(UDP_Report.get("i0"))+','+'i1: '+str(UDP_Report.get("i1"))+','+'i2: '+str(UDP_Report.get("i2"))+','\
-                +'e0 :'+str(UDP_Report.get("e0"))+','+'e1: '+str(UDP_Report.get("e1"))+','+'e2: '+str(UDP_Report.get("e2"))+','\
-                +'p0 :'+str(UDP_Report.get("p0"))+','+'p1: '+str(UDP_Report.get("p1"))+','+'p2: '+str(UDP_Report.get("p2"))\
+                +'PhA_Irms :'+str(UDP_Report.get("i0"))+','+'PhB_Irms: '+str(UDP_Report.get("i1"))+','+'PhC_Irms: '+str(UDP_Report.get("i2"))\
                 +"}&apikey="+API_KEY
                 r = requests.post(url = API_ENDPOINT)
 
@@ -133,19 +106,7 @@ def main():
                 """
                #Send Data to CEMS Servr
                 API_ENDPOINT = CEMS_URL+"input/post.json?node="+ NODE_NAME + "_TCM3003_ID_"+str(UDP_Report.get("id")) + "_SubID_"+str(UDP_Report.get("sub")+172)+"&json={"\
-                +'f0: '+str(UDP_Report.get("f0"))+','+'f1: '+str(UDP_Report.get("f1"))+','+'f2: '+str(UDP_Report.get("f2"))+','\
-                +'ii0: '+str(UDP_Report.get("ii0"))+','+'ii1: '+str(UDP_Report.get("ii1"))+','+'ii2: '+str(UDP_Report.get("ii2"))+','\
-                +'h0: '+str(UDP_Report.get("h0"))+','+'h1: '+str(UDP_Report.get("h1"))+','+'h2: '+str(UDP_Report.get("h2"))+','\
-                +'vv0: '+str(UDP_Report.get("vv0"))+','+'vv1: '+str(UDP_Report.get("vv1"))+','+'vv2: '+str(UDP_Report.get("vv2"))+','\
-                +'b0: '+str(UDP_Report.get("b0"))+','+'b1: '+str(UDP_Report.get("b1"))+','+'b2: '+str(UDP_Report.get("b2"))+','\
-                +'r0: '+str(UDP_Report.get("r0"))+','+'r1: '+str(UDP_Report.get("r1"))+','+'r2: '+str(UDP_Report.get("r2"))+','\
-                +'q0: '+str(UDP_Report.get("q0"))+','+'q1: '+str(UDP_Report.get("q1"))+','+'q2: '+str(UDP_Report.get("q2"))+','\
-                +'s0: '+str(UDP_Report.get("s0"))+','+'s1: '+str(UDP_Report.get("s1"))+','+'s2: '+str(UDP_Report.get("s2"))+','\
-                +'v0 :'+str(UDP_Report.get("v0"))+','+'v1 :'+str(UDP_Report.get("v1"))+','+'v2: '+str(UDP_Report.get("v2"))+','\
-                +'a0 :'+str(UDP_Report.get("a0"))+','+'a1: '+str(UDP_Report.get("a1"))+','+'a2: '+str(UDP_Report.get("a2"))+','\
-                +'i0 :'+str(UDP_Report.get("i0"))+','+'i1: '+str(UDP_Report.get("i1"))+','+'i2: '+str(UDP_Report.get("i2"))+','\
-                +'e0 :'+str(UDP_Report.get("e0"))+','+'e1: '+str(UDP_Report.get("e1"))+','+'e2: '+str(UDP_Report.get("e2"))+','\
-                +'p0 :'+str(UDP_Report.get("p0"))+','+'p1: '+str(UDP_Report.get("p1"))+','+'p2: '+str(UDP_Report.get("p2"))\
+                +'PhA_Irms :'+str(UDP_Report.get("i0"))+','+'PhB_Irms: '+str(UDP_Report.get("i1"))+','+'PhC_Irms: '+str(UDP_Report.get("i2"))\
                 +"}&apikey="+API_KEY
                 r = requests.post(url = API_ENDPOINT)
 
